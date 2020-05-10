@@ -3,6 +3,7 @@ This script will create two Scribus documents for a specific https://www.fotoalb
 
 I guess it will work for albums created with any of the other "country flavours"
 of the franchise:
+
 https://www.myphotobook.de/
 https://www.myphotobook.at/
 https://www.myphotobook.ch/
