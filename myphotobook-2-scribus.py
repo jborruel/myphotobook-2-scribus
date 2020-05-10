@@ -22,6 +22,14 @@ https://www.myphotobook.dk
 The directory where the album data are stored is in my case:
 ~users~\AppData\Roaming\PhotoGenie X\{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}\Persistent\Files\projects
 
+The pictures used for the Albums are locally imported in the folder:
+~users~\AppData\Roaming\PhotoGenie X\{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}\Persistent\Reserved
+I renamed all the files in this folder with the .JPG extension, and that is how the scripts expects to find them. 
+Is this is not the desired behaviour, then the next line has to be changed, from:
+>> scribus.loadImage(imagedir + albumdata.pages[pagenum].layers[layercount].elements[elementcount].picture.id + ".JPG", f)
+to
+>> scribus.loadImage(imagedir + albumdata.pages[pagenum].layers[layercount].elements[elementcount].picture.id, f)
+
 I haven't implemented any error checking in this version, as is is made for
 my home purposes.
 
@@ -78,6 +86,10 @@ imagedir = scribus.fileDialog("Select Your Persistent - Reserved Directory", "Di
 #jsonfile = "~users~/AppData/Roaming/PhotoGenie X/{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}/Persistent/Files/projects/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX.json"
 #imagedir = "~users~/AppData/Roaming/PhotoGenie X/{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}/Persistent/Reserved/"
 
+# if the folder is copied somewhere else, as in temp, and want to run just one album file, for example:
+#jsonfile = "C:/tmp/Fotoalbum/Persistent/Files/projects/891d2847-fd35-4bb9-a4c8-xxxxxxxxxxxx.json"
+#imagedir = "C:/tmp/Fotoalbum/Persistent/Reserved/"
+
 with open(jsonfile, 'r') as f:
 	albumdata = json.load(f, object_hook=JSONObject)
 
@@ -122,7 +134,8 @@ for pagenum in range(len(albumdata.pages)):
 			for elementcount in range(len(albumdata.pages[pagenum].layers[layercount].elements)):
 				#print ("ELEMENT: " + str(elementcount))
 				# I don't implement image rotation as we don't use it... Sorry
-				if albumdata.pages[pagenum].layers[layercount].elements[elementcount].type == 'PICTURE':
+				# Check also if picture frame is empty, otherwise do not process it:
+				if (albumdata.pages[pagenum].layers[layercount].elements[elementcount].type == 'PICTURE') and (albumdata.pages[pagenum].layers[layercount].elements[elementcount].picture != None) :
 					size_x = albumdata.pages[pagenum].layers[layercount].elements[elementcount].size.width
 					size_y = albumdata.pages[pagenum].layers[layercount].elements[elementcount].size.height
 					x_pos = albumdata.pages[pagenum].layers[layercount].elements[elementcount].position.x - (size_x / 2)
